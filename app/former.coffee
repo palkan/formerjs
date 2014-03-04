@@ -155,11 +155,12 @@ do (context = this) ->
       name = name.replace(@options.fill_prefix, '') if @options.fill_prefix
       name = @options.name_transform(name) if @options.name_transform?
 
+      return if name.indexOf('[]')>-1
+
       for key in name.split(".")
-        do (key) ->
           data = data[key]
           if not data?
-            return
+            break
       data
       
     _parse_nod_value: (nod) ->
@@ -185,7 +186,7 @@ do (context = this) ->
 
     _serialize: (val) ->
       val = switch
-        when not val? then null
+        when (not val? or val is '') then null
         when val == 'true' then true
         when val == 'false' then false
         when isNaN(Number(val)) then val 
