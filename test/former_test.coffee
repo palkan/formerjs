@@ -132,6 +132,37 @@ describe "former test", ->
       expect(data["model"]["a"][1]['id']).to.eql(2)
       expect(data["model"]["flag"]).to.eql(true)
 
+    it "should correctly parse rails datetime names", ->
+      f = new FormerJS(null, rails: true)
+
+      name_values = [
+        {name: "model[created_at(2i)]", value: "7"},
+        {name: "model[created_at(1i)]", value: "2014"},
+        {name: "model[created_at(3i)]", value: "1"}
+      ]
+
+      data = f._process_name_values(name_values)
+
+      expect(data["model"]["created_at(1i)"]).to.equal '2014'
+      expect(data["model"]["created_at(2i)"]).to.equal '7'
+      expect(data["model"]["created_at(3i)"]).to.equal '1'
+
+     xit "should correctly parse nested rails names", ->
+      f = new FormerJS(null, rails: true)
+
+      name_values = [
+        {name: "model[created_at[month]]", value: "7"},
+        {name: "model[created_at[year]]", value: "2014"},
+        {name: "model[created_at[day]]", value: "1"}
+      ]
+
+      data = f._process_name_values(name_values)
+
+      expect(data["model"]["created_at"]["year"]).to.equal '2014'
+      expect(data["model"]["created_at"]["month"]).to.equal '7'
+      expect(data["model"]["created_at"]["day"]).to.equal '1'
+
+
 
   describe "manipulate with form", ->
     beforeEach ->

@@ -182,7 +182,7 @@ do (context = this) ->
       option.value for option in nod.getElementsByTagName("option") when option.selected
 
     _rails_name_transform: (name) ->
-      name.replace(/([\a-z_\d\]])\[([^\]])/ig, "$1.$2").replace(/([\a-z_\d])\]/ig, "$1")
+      name.replace(/([a-z_\d\(\)\]])\[([^\]])/ig, "$1.$2").replace(/([a-z_\(\)\d])\]/ig, "$1")
 
     _serialize: (val) ->
       val = switch
