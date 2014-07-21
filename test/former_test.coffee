@@ -109,6 +109,15 @@ describe "former test", ->
       expect(data["obj"]["a"][2]['comments']).to.have.length(2)
       expect(data["obj"]["a"][2]['comments'][0]['likes']).to.eql(['10','12'])
 
+    ## Bug from teachbase
+    it "should correctly parse arrays of nested objects (rails)", ->
+      f = new FormerJS(null, {rails: true})
+      data = f._process_name_values([{name: 'users[][labels[12]]',value: 1},{name:'users[][labels[15]]',value:2}])
+
+      expect(data["users"]).to.have.length(1)
+      expect(data["users"][0]["labels"]["12"]).to.eql(1)
+      expect(data["users"][0]["labels"]["15"]).to.eql(2)
+
 
   describe "parse names and values", ->
     it "should correctly parse rails names and serialize data", ->
@@ -147,7 +156,7 @@ describe "former test", ->
       expect(data["model"]["created_at(2i)"]).to.equal '7'
       expect(data["model"]["created_at(3i)"]).to.equal '1'
 
-     xit "should correctly parse nested rails names", ->
+     it "should correctly parse nested rails names", ->
       f = new FormerJS(null, rails: true)
 
       name_values = [
@@ -182,6 +191,8 @@ describe "former test", ->
 
       @test_form.appendChild TestHelpers.selectElement('post.lang',true,{value:'ru',selected:true},{value:'en'},{value:'es'},{value:'de',selected:true})
 
+      @test_form.appendChild TestHelpers.inputElement('hidden','post.parent_id','123')
+
       document.body.appendChild(@test_form)
 
     afterEach ->
@@ -214,5 +225,14 @@ describe "former test", ->
 
       expect(data.post.name).to.be.empty
       expect(data.post.lang).to.be.empty
+      expect(data.post.parent_id).to.equal('123')
 
+    it "should clear hidden elements when 'clear_hidden' is true", ->
+      FormerJS.clear(@test_form, clear_hidden: true)
+
+      data = FormerJS.parse(@test_form)
+
+      expect(data.post.name).to.be.empty
+      expect(data.post.lang).to.be.empty
+      expect(data.post.parent_id).to.be.empty
 

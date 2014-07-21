@@ -12,8 +12,8 @@ do (context = this) ->
     @fill: (nod, options) ->
       (new FormerJS(nod,options)).fill()
 
-    @clear: (nod) ->
-      (new FormerJS(nod)).clear()
+    @clear: (nod, options) ->
+      (new FormerJS(nod, options)).clear()
 
     parse: ->
       @_process_name_values @_collect_name_values()
@@ -63,12 +63,14 @@ do (context = this) ->
                   
                   _arr_len = _arrays[_arr_fullname].length
 
-                  if (not _arr_len or ((_next_field in _arrays[_arr_fullname]) and (_next_field.indexOf('[]')<0 or _next_field isnt _arrays[_arr_fullname][_arr_len-1])))
+                  if _current[_arr_name].length>0
+                    _array_item = _current[_arr_name][_current[_arr_name].length-1] 
+
+                  if (not _arr_len or ((_next_field in _arrays[_arr_fullname]) and not (_next_field.indexOf('[]')>-1 or !(_array_item[_next_field] && (i+1 == len-1)))))
                     _array_item = {}  
                     _current[_arr_name].push _array_item
                     _arrays[_arr_fullname] = []
-                  else
-                    _array_item = _current[_arr_name][_current[_arr_name].length-1] 
+                    
                   
                   _arrays[_arr_fullname].push _next_field
                   _current = _array_item
@@ -148,6 +150,7 @@ do (context = this) ->
         type = nod.type.toLowerCase()
         switch
           when /(radio|checkbox)/.test(type) then (nod.checked = false)  
+          when (type is 'hidden' and !@options.clear_hidden) then true
           else (nod.value = '')
       return
 
@@ -182,7 +185,7 @@ do (context = this) ->
       option.value for option in nod.getElementsByTagName("option") when option.selected
 
     _rails_name_transform: (name) ->
-      name.replace(/([a-z_\d\(\)\]])\[([^\]])/ig, "$1.$2").replace(/([a-z_\(\)\d])\]/ig, "$1")
+      name.replace(/\[([^\]])/ig, ".$1").replace(/([^\[])([\]]+)/ig,"$1")
 
     _serialize: (val) ->
       val = switch
