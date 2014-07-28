@@ -175,8 +175,18 @@ do (context = this) ->
           when (/(radio|checkbox)/.test(type) and nod.checked) then nod.value  
           when (/(radio|checkbox)/.test(type) and not nod.checked) then null  
           when /(button|reset|submit|image)/.test(type) then null
+          when /(file)/.test(type) then @_parse_file_value(nod)
           else nod.value
 
+    _parse_file_value: (nod) ->
+      unless nod.files.length
+        return
+
+      if nod.multiple
+        nod.files
+      else
+        nod.files[0]
+          
     _parse_select_value: (nod) ->
       multiple = nod.multiple
 
